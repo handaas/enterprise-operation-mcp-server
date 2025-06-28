@@ -59,7 +59,7 @@ def call_api(product_id: str, params: dict) -> dict:
     url = f'https://console.handaas.com/api/v1/integrator/call_api/{INTEGRATOR_ID}'
     try:
         response = requests.post(url, data=call_params)
-        return response.json().get("data", "查询为空")
+        return response.json().get("data", None) or response.json().get("msgCN", None)
     except Exception as e:
         return "查询失败"
     
@@ -166,7 +166,7 @@ def operation_insight_brand_profile(matchKeyword: str, keywordType: str = None) 
 
 
 @mcp.tool()
-def operation_insight_enterprise_rankings(matchKeyword: str, keywordType: str = None, pageIndex: int = None,
+def operation_insight_enterprise_rankings(matchKeyword: str, keywordType: str = None, pageIndex: int = 1,
                         pageSize: int = None) -> dict:
     """
     该接口的功能是查询和返回企业的上榜信息，通过输入企业名称、注册号、统一社会信用代码或企业ID等信息，能够获取榜单总数、榜单信息列表、榜单类型、上榜公司名、榜单名称、排名、发布年份、榜单级别以及发布单位等多维度数据。此接口可用于市场分析、行业研究、投资决策、品牌评估等场景，帮助用户了解企业在行业内的地位和影响力。例如，投资机构可通过该接口筛选出行业内表现优异的企业作为潜在投资对象；企业自身可借此了解自身在行业中的排名变化，以便制定相应的发展战略；行业研究机构也可利用此数据进行市场趋势分析和行业竞争力评估。
@@ -175,7 +175,7 @@ def operation_insight_enterprise_rankings(matchKeyword: str, keywordType: str = 
     请求参数:
     - matchKeyword: 匹配关键词 类型：string - 企业名称/注册号/统一社会信用代码/企业id，如果没有企业全称则先调取fuzzy_search接口获取企业全称。
     - keywordType: 主体类型 类型：select - 主体类型枚举（name：企业名称，nameId：企业id，regNumber：注册号，socialCreditCode：统一社会信用代码)
-    - pageIndex: 页码 类型：int
+    - pageIndex: 页码 类型：int - 从1开始
     - pageSize: 分页大小 类型：int - 一页最多获取10条数据
 
     返回参数:
@@ -232,7 +232,7 @@ def operation_insight_business_scale(matchKeyword: str, keywordType: str = None)
 
 
 @mcp.tool()
-def operation_insight_fuzzy_search(matchKeyword: str, pageIndex: int = None, pageSize: int = None) -> dict:
+def operation_insight_fuzzy_search(matchKeyword: str, pageIndex: int = 1, pageSize: int = None) -> dict:
     """
     该接口的功能是根据提供的企业名称、人名、品牌、产品、岗位等关键词模糊查询相关企业列表。返回匹配的企业列表及其详细信息，用于查找和识别特定的企业信息。
 
@@ -319,7 +319,7 @@ def operation_insight_news_sentiment_stats(matchKeyword: str, keywordType: str =
 
 
 @mcp.tool()
-def operation_insight_similar_projects(matchKeyword: str, pageIndex: int = None, pageSize: int = None, keywordType: str = None) -> dict:
+def operation_insight_similar_projects(matchKeyword: str, pageIndex: int = 1, pageSize: int = 10, keywordType: str = None) -> dict:
     """
     该接口的功能是根据输入的企业识别信息（如企业名称、注册号、统一社会信用代码或企业id）和主体类型，查询与该企业相关的相似项目信息，并返回这些项目信息的详细描述，包括项目所属企业、最新融资轮次、项目概述及相关图片、企业id、项目名称和相似项目的总数。该接口的场景利用包括企业投资分析、市场竞争分析、公司内部项目管理系统中用于评估企业的项目布局情况或潜在投资机会的探查等，方便使用者掌握企业相关或竞争企业的项目动态。
 
