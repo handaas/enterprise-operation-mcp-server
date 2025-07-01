@@ -180,7 +180,6 @@ def operation_insight_enterprise_rankings(matchKeyword: str, keywordType: str = 
 
     返回参数:
     - total: 榜单总数 类型：int
-    - resultList: 榜单信息列表 类型：list of dict
     - rankingListType: 榜单类型 类型：string - 世界500强榜单，中国500强榜单，民营500强榜单，新经济500强榜单，制造业500强榜单，制造业民营500强榜单
     - rankingListCompanyName: 上榜公司名 类型：string
     - rankingListName: 榜单名称 类型：string
@@ -244,7 +243,6 @@ def operation_insight_fuzzy_search(matchKeyword: str, pageIndex: int = 1, pageSi
 
     返回参数:
     - total: 总数 类型：int
-    - resultList: 结果列表 类型：list of dict
     - annualTurnover: 年营业额 类型：string
     - formerNames: 曾用名 类型：list of string
     - address: 注册地址 类型：string
@@ -334,7 +332,6 @@ def operation_insight_similar_projects(matchKeyword: str, pageIndex: int = 1, pa
     - keywordType: 主体类型 类型：select - 主体类型枚举（name：企业名称，nameId：企业id，regNumber：注册号，socialCreditCode：统一社会信用代码)
 
     返回参数:
-    - resultList: 结果列表 类型：list of dict
     - logo: 项目图片 类型：string
     - fpIntroduction: 项目概述 类型：string
     - nameId: 所属企业id 类型：string

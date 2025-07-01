@@ -232,7 +232,6 @@ python server/mcp_server.py streamable-http
 
 **返回值**:
 - `total`: 总数
-- `resultList`: 结果列表
   - `projectName`: 项目名称
   - `enterpriseName`: 所属企业
   - `nameId`: 所属企业id
