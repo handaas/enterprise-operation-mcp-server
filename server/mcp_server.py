@@ -8,7 +8,7 @@ import sys
 
 load_dotenv()
 
-mcp = FastMCP("企业经营分析洞察", instructions="企业经营分析洞察",dependencies=["python-dotenv", "requests"])
+mcp = FastMCP("企业经营分析洞察", instructions="企业经营分析洞察", dependencies=["python-dotenv", "requests"])
 
 INTEGRATOR_ID = os.environ.get("INTEGRATOR_ID")
 SECRET_ID = os.environ.get("SECRET_ID")
@@ -126,6 +126,8 @@ def operation_insight_company_trends(matchKeyword: str, keywordType: str = None)
     - isLegalRpAlterIn6Month: 是否近6个月法人变更 类型：int
     - isLegalRpAlterIn12Month: 是否近12个月法人变更 类型：int
     - nYearLeaseAboutToExpire: 剩余租约年限 类型：int
+    - qualificationIn6MonthList: 6个月内的资格列表 类型：list of string
+    - qualificationIn12MonthList: 12个月内的资格列表 类型：list of string
     """
     # 构建请求参数
     params = {
@@ -171,7 +173,7 @@ def operation_insight_brand_profile(matchKeyword: str, keywordType: str = None) 
 
 @mcp.tool()
 def operation_insight_enterprise_rankings(matchKeyword: str, keywordType: str = None, pageIndex: int = 1,
-                        pageSize: int = None) -> dict:
+                        pageSize: int = 10) -> dict:
     """
     该接口的功能是查询和返回企业的上榜信息，通过输入企业名称、注册号、统一社会信用代码或企业ID等信息，能够获取榜单总数、榜单信息列表、榜单类型、上榜公司名、榜单名称、排名、发布年份、榜单级别以及发布单位等多维度数据。此接口可用于市场分析、行业研究、投资决策、品牌评估等场景，帮助用户了解企业在行业内的地位和影响力。例如，投资机构可通过该接口筛选出行业内表现优异的企业作为潜在投资对象；企业自身可借此了解自身在行业中的排名变化，以便制定相应的发展战略；行业研究机构也可利用此数据进行市场趋势分析和行业竞争力评估。
 
@@ -179,18 +181,19 @@ def operation_insight_enterprise_rankings(matchKeyword: str, keywordType: str = 
     请求参数:
     - matchKeyword: 匹配关键词 类型：string - 企业名称/注册号/统一社会信用代码/企业id，如果没有企业全称则先调取fuzzy_search接口获取企业全称。
     - keywordType: 主体类型 类型：select - 主体类型枚举（name：企业名称，nameId：企业id，regNumber：注册号，socialCreditCode：统一社会信用代码)
-    - pageIndex: 页码 类型：int - 从1开始
-    - pageSize: 分页大小 类型：int - 一页最多获取10条数据
+    - pageIndex: 页码 类型：int - 默认从1开始
+    - pageSize: 分页大小 类型：int - 一页最多获取10条数据, 不能超过10, 超过10的统一用10代替。
 
     返回参数:
     - total: 榜单总数 类型：int
-    - rankingListType: 榜单类型 类型：string - 世界500强榜单，中国500强榜单，民营500强榜单，新经济500强榜单，制造业500强榜单，制造业民营500强榜单
-    - rankingListCompanyName: 上榜公司名 类型：string
-    - rankingListName: 榜单名称 类型：string
-    - rank: 排名 类型：int
-    - rankingListYear: 发布年份 类型：int
-    - rankingListLevel: 榜单级别 类型：string
-    - rankingListInstitution: 发布单位 类型：string
+    - resultList: 榜单信息列表 类型：list of dict
+        - rankingListType: 榜单类型 类型：string - 世界500强榜单，中国500强榜单，民营500强榜单，新经济500强榜单，制造业500强榜单，制造业民营500强榜单
+        - rankingListCompanyName: 上榜公司名 类型：string
+        - rankingListName: 榜单名称 类型：string
+        - rank: 排名 类型：int
+        - rankingListYear: 发布年份 类型：int
+        - rankingListLevel: 榜单级别 类型：string
+        - rankingListInstitution: 发布单位 类型：string
     """
     # 构建请求参数
     params = {
@@ -235,49 +238,49 @@ def operation_insight_business_scale(matchKeyword: str, keywordType: str = None)
 
 
 @mcp.tool()
-def operation_insight_fuzzy_search(matchKeyword: str, pageIndex: int = 1, pageSize: int = None) -> dict:
+def operation_insight_fuzzy_search(matchKeyword: str, pageIndex: int = 1, pageSize: int = 50) -> dict:
     """
     该接口的功能是根据提供的企业名称、人名、品牌、产品、岗位等关键词模糊查询相关企业列表。返回匹配的企业列表及其详细信息，用于查找和识别特定的企业信息。
 
 
     请求参数:
     - matchKeyword: 匹配关键词 类型：string - 查询各类信息包含匹配关键词的企业
-    - pageIndex: 分页开始位置 类型：int
-    - pageSize: 分页结束位置 类型：int - 一页最多获取50条数据
+    - pageIndex: 分页开始位置 类型：int - 默认从1开始
+    - pageSize: 分页结束位置 类型：int - 一页最多获取50条数据, 不能超过50, 超过50的统一用50代替
 
     返回参数:
     - total: 总数 类型：int
-    - annualTurnover: 年营业额 类型：string
-    - formerNames: 曾用名 类型：list of string
-    - address: 注册地址 类型：string
-    - foundTime: 成立时间 类型：string
-    - enterpriseType: 企业主体类型 类型：string
-    - legalRepresentative: 法定代表人 类型：string
-    - homepage: 企业官网 类型：string
-    - legalRepresentativeId: 法定代表人id 类型：string
-    - prmtKeys: 推广关键词 类型：list of string
-    - operStatus: 企业状态 类型：string
-    - logo: 企业logo 类型：string
-    - nameId: 企业id 类型：string
-    - regCapitalCoinType: 注册资本币种 类型：string
-    - regCapitalValue: 注册资本金额 类型：int
-    - name: 企业名称 类型：string
-    - catchReason: 命中原因 类型：dict
-    - catchReason.name: 企业名称 类型：list of string
-    - catchReason.formerNames: 曾用名 类型：list of string
-    - catchReason.holderList: 股东 类型：list of string
-    - catchReason.recruitingName: 招聘岗位 类型：list of string
-    - catchReason.address: 地址 类型：list of string
-    - catchReason.operBrandList: 品牌 类型：list of string
-    - catchReason.goodsNameList: 产品名称 类型：list of string
-    - catchReason.phoneList: 固话 类型：list of string
-    - catchReason.emailList: 邮箱 类型：list of string
-    - catchReason.mobileList: 手机 类型：list of string
-    - catchReason.patentNameList: 专利 类型：list of string
-    - catchReason.certNameList: 资质证书 类型：list of string
-    - catchReason.prmtKeys: 推广关键词 类型：list of string
-    - catchReason.socialCreditCode: 统一社会信用代码 类型：list of string
-
+    - resultList:查询返回企业信息列表 类型：list of dict:
+        - annualTurnover: 年营业额 类型：string
+        - formerNames: 曾用名 类型：list of string
+        - address: 注册地址 类型：string
+        - foundTime: 成立时间 类型：string
+        - enterpriseType: 企业主体类型 类型：string
+        - legalRepresentative: 法定代表人 类型：string
+        - legalRepresentativeId: 法定代表人id 类型：string
+        - homepage: 企业官网 类型：string
+        - prmtKeys: 推广关键词 类型：list of string
+        - operStatus: 企业状态 类型：string
+        - logo: 企业logo 类型：string
+        - nameId: 企业id 类型：string
+        - regCapitalCoinType: 注册资本币种 类型：string
+        - regCapitalValue: 注册资本金额 类型：int
+        - name: 企业名称 类型：string
+        - catchReason: 命中原因 类型：dict
+            - catchReason.name: 企业名称 类型：list of string
+            - catchReason.formerNames: 曾用名 类型：list of string
+            - catchReason.holderList: 股东 类型：list of string
+            - catchReason.recruitingName: 招聘岗位 类型：list of string
+            - catchReason.address: 地址 类型：list of string
+            - catchReason.operBrandList: 品牌 类型：list of string
+            - catchReason.goodsNameList: 产品名称 类型：list of string
+            - catchReason.phoneList: 固话 类型：list of string
+            - catchReason.emailList: 邮箱 类型：list of string
+            - catchReason.mobileList: 手机 类型：list of string
+            - catchReason.patentNameList: 专利 类型：list of string
+            - catchReason.certNameList: 资质证书 类型：list of string
+            - catchReason.prmtKeys: 推广关键词 类型：list of string
+            - catchReason.socialCreditCode: 统一社会信用代码 类型：list of string
     """
     # 构建请求参数
     params = {
@@ -307,8 +310,8 @@ def operation_insight_news_sentiment_stats(matchKeyword: str, keywordType: str =
     - newsSentimentStats: 舆情情感类型统计 类型：dict - neutral：中立，negative：消极，positive：积极，unknown：未知
     - sentimentLabelList: 所有舆情类别列表 类型：list of string - neutral：中立，negative：消极，positive：积极
     - newsSentimentTrend: 舆情趋势 类型：dict
-    - month: 月份 类型：string - 格式：yyyy-mm
-    - stats: 情感类型 类型：dict - negative：消极，positive：积极
+        - month: 月份 类型：string - 格式：yyyy-mm
+        - stats: 情感类型 类型：dict - negative：消极，positive：积极
     """
     # 构建请求参数
     params = {
@@ -331,18 +334,19 @@ def operation_insight_similar_projects(matchKeyword: str, pageIndex: int = 1, pa
 
     请求参数:
     - matchKeyword: 匹配关键词 类型：string - 企业名称/注册号/统一社会信用代码/企业id，如果没有企业全称则先调取fuzzy_search接口获取企业全称。
-    - pageIndex: 页码 类型：int - 从1开始
-    - pageSize: 分页大小 类型：int - 一页最多获取10条数据
+    - pageIndex: 页码 类型：int - 默认从1开始
+    - pageSize: 分页大小 类型：int - 一页最多获取10条数据, 不能超过10, 超过10的统一用10代替。
     - keywordType: 主体类型 类型：select - 主体类型枚举（name：企业名称，nameId：企业id，regNumber：注册号，socialCreditCode：统一社会信用代码)
 
     返回参数:
-    - logo: 项目图片 类型：string
-    - fpIntroduction: 项目概述 类型：string
-    - nameId: 所属企业id 类型：string
-    - projectName: 项目名称 类型：string
+    - resultList: 结果列表 类型：list of dict
+        - logo: 项目图片 类型：string
+        - fpIntroduction: 项目概述 类型：string
+        - nameId: 所属企业id 类型：string
+        - projectName: 项目名称 类型：string
+        - enterpriseName: 所属企业 类型：string
+        - financingSeries: 最新轮次 类型：string
     - total: 总数 类型：int
-    - enterpriseName: 所属企业 类型：string
-    - financingSeries: 最新轮次 类型：string
     """
     # 构建请求参数
     params = {
@@ -371,11 +375,11 @@ def operation_insight_tax_qualifications(matchKeyword: str, keywordType: str = N
 
     返回参数:
     - tpQualificationList: 企业税务资质信息 类型：list of dict
-    - tpId: 纳税人识别号 类型：string
-    - tpName: 纳税人名称 类型：string
-    - qualification: 资质全称 类型：string
-    - begin: 有效期起 类型：string
-    - end: 有效期止 类型：string
+        - tpId: 纳税人识别号 类型：string
+        - tpName: 纳税人名称 类型：string
+        - qualification: 资质全称 类型：string
+        - begin: 有效期起 类型：string
+        - end: 有效期止 类型：string
     """
     # 构建请求参数
     params = {
@@ -403,10 +407,10 @@ def operation_insight_financing_info(matchKeyword: str, keywordType: str = None)
     返回参数:
     - fpFinancingCount: 融资次数 类型：int
     - fpFinancingList: 融资信息 类型：list of dict
-    - financingAmount: 融资金额 类型：string
-    - financingSeries: 融资轮次 类型：string
-    - financingTime: 融资时间 类型：string
-    - investorList: 投资方 类型：list of string
+        - financingAmount: 融资金额 类型：string
+        - financingSeries: 融资轮次 类型：string
+        - financingTime: 融资时间 类型：string
+        - investorList: 投资方 类型：list of string
     """
     # 构建请求参数
     params = {
